@@ -1,14 +1,20 @@
 {
 	"name": "collapse-automation",
-	"version": "0.0.20",
+	"version": "0.0.23",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/a-x-/vscode-collapse-automation"
 	},
 	"description": "Smart code folding for VS Code - automatically collapse function calls and code blocks based on patterns",
 	"displayName": "Collapse Automation",
-	"icon": "icon.png",
-	"keywords": ["fold", "collapse", "logger", "code folding", "productivity"],
+	"icon": "dist/logo.png",
+	"keywords": [
+		"fold",
+		"collapse",
+		"logger",
+		"code folding",
+		"productivity"
+	],
 	"engines": {
 		"vscode": "^1.89.0"
 	},
