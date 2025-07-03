@@ -19,8 +19,9 @@ interface FunctionCall {
  * @param patterns - The patterns to match (e.g., ["logger.info", "logger.error"])
  * @returns Array of matches with line numbers
  */
-function findFunctionCalls(text: string, patterns: string[]): FunctionCall[] {
+function findFunctionCalls(text: string, patterns: string[]): { multiLine: FunctionCall[], singleLine: number } {
 	const matches: FunctionCall[] = [];
+	let singleLineCount = 0;
 	
 	try {
 		// Parse the entire document
@@ -61,6 +62,8 @@ function findFunctionCalls(text: string, patterns: string[]): FunctionCall[] {
 									startLine,
 									endLine
 								});
+							} else {
+								singleLineCount++;
 							}
 						}
 					}
@@ -86,7 +89,7 @@ function findFunctionCalls(text: string, patterns: string[]): FunctionCall[] {
 		outputChannel.appendLine(`- ERROR parsing document for AST: ${e.message}`);
 	}
 	
-	return matches;
+	return { multiLine: matches, singleLine: singleLineCount };
 }
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -144,11 +147,11 @@ export function activate(context: vscode.ExtensionContext): void {
 		const previousSize = manuallyUnfoldedLines.size;
 		
 		// Find function calls in this document
-		const functionCalls = findFunctionCalls(document.getText(), 
+		const result = findFunctionCalls(document.getText(), 
 			vscode.workspace.getConfiguration('collapse-automation').get<string[]>('alwaysFold', []));
 		
 		// Check which ones are now visible (unfolded) or folded
-		for (const call of functionCalls) {
+		for (const call of result.multiLine) {
 			if (call.endLine > call.startLine) {
 				const middleLine = call.startLine + 1;
 				const isNowVisible = event.visibleRanges.some(range => 
@@ -301,13 +304,17 @@ async function analyzeAndFold(document: vscode.TextDocument, isManualCommand: bo
 		
 		// Use AST to find all function calls
 		outputChannel.appendLine(`- Parsing document with AST to find function calls...`);
-		const functionCalls = findFunctionCalls(document.getText(), alwaysFold);
+		const result = findFunctionCalls(document.getText(), alwaysFold);
 		
-		outputChannel.appendLine(`- Found ${functionCalls.length} multi-line function calls`);
+		outputChannel.appendLine(`- Found ${result.multiLine.length} multi-line function calls`);
+		if (result.singleLine > 0) {
+			outputChannel.appendLine(`- Found ${result.singleLine} single-line function calls (skipped - cannot be folded)`);
+		}
 		
-		if (functionCalls.length === 0) {
+		if (result.multiLine.length === 0) {
 			outputChannel.appendLine("- No multi-line function calls found to fold");
 		} else {
+			const functionCalls = result.multiLine;
 			// Log all found function calls
 			for (const call of functionCalls) {
 				const startLineText = lines[call.startLine].trim();
@@ -323,23 +330,13 @@ async function analyzeAndFold(document: vscode.TextDocument, isManualCommand: bo
 			}
 			const manuallyUnfoldedLines = manuallyUnfolded.get(docUri)!;
 			
-			// Track currently folded lines before we start
-			const visibleRanges = editor.visibleRanges;
-			const currentlyFoldedLines = new Set<number>();
-			for (const call of functionCalls) {
-				if (call.endLine > call.startLine) {
-					const middleLine = call.startLine + 1;
-					const isFolded = !visibleRanges.some(range => 
-						range.start.line <= middleLine && range.end.line >= middleLine
-					);
-					if (isFolded) {
-						currentlyFoldedLines.add(call.startLine);
-					}
-				}
-			}
+			// Unfold all first to ensure clean state
+			outputChannel.appendLine(`- EXECUTING: editor.unfoldAll to ensure clean state`);
+			await vscode.commands.executeCommand('editor.unfoldAll');
+			outputChannel.appendLine(`- COMPLETED: editor.unfoldAll`);
 			
-			// Unfold all first (optional approach)
-			// await vscode.commands.executeCommand('editor.unfoldAll');
+			// Small delay to ensure VS Code processed the unfold
+			await new Promise(resolve => setTimeout(resolve, 50));
 			
 			// Fold each function call at its start line
 			let foldedCount = 0;
@@ -355,8 +352,12 @@ async function analyzeAndFold(document: vscode.TextDocument, isManualCommand: bo
 						continue;
 					}
 					
-					// Check if already folded and track changes
-					if (!isManualCommand && currentlyFoldedLines.has(call.startLine)) {
+					// Check if already folded
+					const middleLine = call.startLine + 1;
+					const isFolded = !editor.visibleRanges.some(range => 
+						range.start.line <= middleLine && range.end.line >= middleLine
+					);
+					if (!isManualCommand && isFolded) {
 						outputChannel.appendLine(`  - Skipped ${call.pattern} at line ${call.startLine + 1}: already folded`);
 						skippedAlreadyFolded++;
 						continue;
@@ -380,7 +381,7 @@ async function analyzeAndFold(document: vscode.TextDocument, isManualCommand: bo
 			// Restore cursor position
 			editor.selections = savedSelections;
 			
-			outputChannel.appendLine(`- Folding completed: ${foldedCount} folded, ${skippedAlreadyFolded} already folded, ${skippedManual} manually unfolded`);
+			outputChannel.appendLine(`- Folding completed: ${foldedCount} folded, ${skippedAlreadyFolded} already folded, ${skippedManual} manually unfolded by user`);
 		}
 	} else {
 		outputChannel.appendLine("- No folding rules to apply (no pragma and alwaysFold is empty)");

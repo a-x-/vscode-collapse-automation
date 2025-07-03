@@ -1,24 +1,41 @@
 # Collapse Automation - VS Code Extension
 
-Smart code folding for VS Code that automatically collapses logger calls and code blocks based on configurable patterns.
+Smart code folding for VS Code that automatically collapses function calls and code blocks based on configurable patterns and AST parsing.
 
 ## Features
 
-### 🎯 Smart Function Call Detection
-- Uses AST parsing to accurately detect function calls (not just string matches)
-- Automatically folds multi-line function calls like `logger.info()`, `console.log()`, etc.
-- Single-line calls are ignored since they can't be folded
+### 🎯 AST-based Pattern Matching
+- Uses TypeScript AST parsing for accurate function call detection
+- Distinguishes between actual function calls and string literals
+- Supports complex nested function calls
 
-### 🔄 Intelligent Folding
-- Immediate analysis when switching files (no delay)
-- Respects user preferences - won't re-fold functions you manually unfold
-- Tracks when you manually fold/unfold functions
-- Preserves cursor position during folding operations
+### 📏 Smart Multi-line Detection
+- Automatically folds only multi-line function calls
+- Single-line function calls are detected but skipped (cannot be folded)
+- Provides statistics on both multi-line and single-line matches
+
+### 🧠 Intelligent User Preference Tracking
+- Remembers when you manually unfold functions
+- Won't re-fold functions you've manually unfolded until next manual command
+- Tracks when you manually fold functions back
+
+### 🔄 Precise Folding Algorithm
+- Unfolds all before folding to ensure clean state
+- Detects already folded functions to avoid redundant operations
+- Preserves cursor position during all folding operations
 
 ### 🛠️ Flexible Configuration
-- **alwaysFold**: Patterns for function calls to always fold (e.g., `["logger.info", "console.log"]`)
-- **neverFold**: Patterns that should never be folded when using `@collapse` pragma
+- **alwaysFold**: Array of function call patterns to always fold (e.g., `["logger.info", "console.log"]`)
+- **neverFold**: Patterns that should never be folded in `@collapse` mode
 - **@collapse pragma**: Add `// @collapse` to any file to fold all code blocks
+- **collapseLevel**: Control folding depth in pragma mode (default: 1)
+- **enableCollapsePragma**: Enable/disable pragma functionality
+
+### ⚡ Performance Optimizations
+- Immediate analysis on file switch (no delay)
+- Debounced analysis for text changes (500ms)
+- Language filtering - only processes JS/JSX/TS/TSX files
+- Recursion prevention for output channels
 
 ### 📝 Supported Languages
 - JavaScript (`.js`)
@@ -39,17 +56,47 @@ This extension contributes the following settings:
 
 * `Auto Collapse: Run Analysis` - Manually trigger folding analysis on the current file
 
+## Usage Examples
+
+### Pattern-based Folding
+```json
+{
+  "collapse-automation.alwaysFold": [
+    "logger.info",
+    "logger.error",
+    "console.log",
+    "console.error"
+  ]
+}
+```
+
+### Pragma-based Folding
+```javascript
+// @collapse
+// This file will have all code blocks folded according to collapseLevel setting
+
+function example() {
+  // code here
+}
+```
+
+## How It Works
+
+1. The extension uses AST parsing to find function calls matching your patterns
+2. Only multi-line function calls are folded (single-line calls are skipped)
+3. User preferences are tracked - manually unfolded functions stay unfolded
+4. Before folding, all code is unfolded to ensure a clean state
+5. Already folded functions are detected and skipped
+
 ## Release Notes
 
-### 0.0.18
-
-Latest stable release with all features
+See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
 
 ---
 
 ### For more information
 
-- If you found an issue with this extension, please submit an issue within this repo to bring it to our attention
-- For more language support, please submit an issue and we will add them shortly!
+- [GitHub Repository](https://github.com/a-x-/vscode-collapse-automation)
+- [Report Issues](https://github.com/a-x-/vscode-collapse-automation/issues)
 
 **Enjoy!**
