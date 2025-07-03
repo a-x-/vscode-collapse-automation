@@ -4,7 +4,6 @@ import {
     type ExtensionContext,
     type OutputChannel,
     Position,
-    Selection,
     type TextDocument,
     window,
     workspace,
