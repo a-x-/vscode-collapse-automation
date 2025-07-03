@@ -2,6 +2,18 @@
 
 All notable changes to the "collapse-automation" extension will be documented in this file.
 
+## [0.0.31] - 2025-01-03
+
+🧽 Chore:
+
+- Added automatic git tagging to version bump script
+- Added --minor flag support for minor version bumps
+- Script now creates git tags automatically (e.g., v0.0.31)
+- Fixed TypeScript types - replaced `any` with proper `TSESTree.Node` type
+- Added Development section to README noting Biome usage (not ESLint)
+- Added note to CLAUDE.md about not using `any` types
+- Fixed walkNode function to use proper TypeScript types without `any`
+
 ## [0.0.28] - 2025-01-03
 
 ✨ Added:

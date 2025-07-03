@@ -1,22 +1,22 @@
 {
-	"compilerOptions": {
-		"module": "commonjs",
-		"target": "ES2020",
-		"lib": ["ES2020"],
-		"outDir": "./dist",
-		"rootDir": "./lib",
-		"strict": true,
-		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"resolveJsonModule": true,
-		"moduleResolution": "node",
-		"allowJs": true,
-		"declaration": true,
-		"declarationMap": true,
-		"sourceMap": true,
-		"types": ["vscode", "bun-types"]
-	},
-	"include": ["lib/**/*"],
-	"exclude": ["node_modules", "dist", ".vscode-test"]
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "ES2020",
+        "lib": ["ES2020"],
+        "outDir": "./dist",
+        "rootDir": "./lib",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "moduleResolution": "node",
+        "allowJs": true,
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+        "types": ["vscode", "bun-types"]
+    },
+    "include": ["lib/**/*"],
+    "exclude": ["node_modules", "dist", ".vscode-test"]
 }

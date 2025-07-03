@@ -1,4 +1,4 @@
-import { parse } from '@typescript-eslint/typescript-estree';
+import { parse, type TSESTree } from '@typescript-eslint/typescript-estree';
 import {
     commands,
     type ExtensionContext,
@@ -44,7 +44,7 @@ function findFunctionCalls(text: string, patterns: string[]): { multiLine: Funct
         });
 
         // Walk the AST to find matching call expressions
-        function walkNode(node: any): void {
+        function walkNode(node: TSESTree.Node | null | undefined): void {
             if (!node || typeof node !== 'object') return;
 
             // Check if this is a matching member expression call
@@ -80,23 +80,31 @@ function findFunctionCalls(text: string, patterns: string[]): { multiLine: Funct
                 }
             }
 
+            // Use TypeScript ESTree visitor pattern
+            const nodeAsRecord = node as unknown as Record<string, unknown>;
+
             // Recursively check all child nodes
-            for (const key in node) {
-                if (key !== 'parent' && node[key]) {
-                    if (Array.isArray(node[key])) {
-                        for (const child of node[key]) {
-                            walkNode(child);
+            for (const key in nodeAsRecord) {
+                if (key !== 'parent' && key !== 'type' && key !== 'loc' && key !== 'range') {
+                    const value = nodeAsRecord[key];
+                    if (value) {
+                        if (Array.isArray(value)) {
+                            for (const child of value) {
+                                if (child && typeof child === 'object' && 'type' in child) {
+                                    walkNode(child as TSESTree.Node);
+                                }
+                            }
+                        } else if (typeof value === 'object' && 'type' in value) {
+                            walkNode(value as TSESTree.Node);
                         }
-                    } else if (typeof node[key] === 'object') {
-                        walkNode(node[key]);
                     }
                 }
             }
         }
 
         walkNode(ast);
-    } catch (e: any) {
-        outputChannel.appendLine(`- ERROR parsing document for AST: ${e.message}`);
+    } catch (e) {
+        outputChannel.appendLine(`- ERROR parsing document for AST: ${(e as Error).message}`);
     }
 
     return { multiLine: matches, singleLine: singleLineCount };
@@ -153,7 +161,7 @@ export function activate(context: ExtensionContext): void {
         if (!manuallyUnfolded.has(docUri)) {
             manuallyUnfolded.set(docUri, new Set<number>());
         }
-        const manuallyUnfoldedLines = manuallyUnfolded.get(docUri)!;
+        const manuallyUnfoldedLines = manuallyUnfolded.get(docUri) || new Set<number>();
         const previousSize = manuallyUnfoldedLines.size;
 
         // Find function calls in this document
@@ -250,8 +258,10 @@ export function activate(context: ExtensionContext): void {
                             unfoldPositions.push(new Position(i, 0));
                             break;
                         }
-                    } catch (e: any) {
-                        outputChannel.appendLine(`- ERROR: Invalid regex pattern '${pattern}': ${e.message}`);
+                    } catch (e) {
+                        outputChannel.appendLine(
+                            `- ERROR: Invalid regex pattern '${pattern}': ${(e as Error).message}`,
+                        );
                     }
                 }
             }
@@ -373,8 +383,10 @@ async function analyzeAndFold(document: TextDocument, isManualCommand: boolean =
                             unfoldPositions.push(new Position(i, 0));
                             break;
                         }
-                    } catch (e: any) {
-                        outputChannel.appendLine(`  - ERROR: Invalid regex pattern '${pattern}': ${e.message}`);
+                    } catch (e) {
+                        outputChannel.appendLine(
+                            `  - ERROR: Invalid regex pattern '${pattern}': ${(e as Error).message}`,
+                        );
                     }
                 }
             }
@@ -418,7 +430,7 @@ async function analyzeAndFold(document: TextDocument, isManualCommand: boolean =
             if (!manuallyUnfolded.has(docUri)) {
                 manuallyUnfolded.set(docUri, new Set<number>());
             }
-            const manuallyUnfoldedLines = manuallyUnfolded.get(docUri)!;
+            const manuallyUnfoldedLines = manuallyUnfolded.get(docUri) || new Set<number>();
 
             // Unfold all first to ensure clean state
             outputChannel.appendLine(`- EXECUTING: editor.unfoldAll to ensure clean state`);
@@ -467,9 +479,9 @@ async function analyzeAndFold(document: TextDocument, isManualCommand: boolean =
                     manuallyUnfoldedLines.delete(call.startLine);
 
                     await new Promise((resolve) => setTimeout(resolve, 10));
-                } catch (e: any) {
+                } catch (e) {
                     outputChannel.appendLine(
-                        `  - Failed to fold ${call.pattern} at line ${call.startLine + 1}: ${e.message}`,
+                        `  - Failed to fold ${call.pattern} at line ${call.startLine + 1}: ${(e as Error).message}`,
                     );
                 }
             }

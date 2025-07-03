@@ -91,6 +91,8 @@ bun run version:patch   # Увеличить patch версию
 - Расширение выводит подробные логи в канал вывода "Collapse Automation"
 - Поддерживаемые языки: javascript, javascriptreact, typescript, typescriptreact
 - Расширение фильтрует только многострочные вызовы функций для сворачивания
+- **НЕ используем тип `any`** - всегда используем правильные типы TypeScript
+- Используем Biome для линтинга и форматирования (не ESLint)
 
 ## Тестирование
 
@@ -112,11 +114,11 @@ bun run version:patch   # Увеличить patch версию
 
 ## Публикация
 
-Расширение опубликовано в VS Code marketplace под ID `a-x-.collapse-automation`.
+Расширение опубликовано в VS Code marketplace под ID `ultra.collapse-automation`.
 
 Для публикации:
 
-1. `vsce login a-x-` (ввести Personal Access Token)
+1. `vsce login ultra` (ввести Personal Access Token)
 2. `vsce publish --no-dependencies` или `vsce publish --packagePath <file.vsix>`
 3. Или загрузить через [VS Code Marketplace Publisher Dashboard](https://marketplace.visualstudio.com/manage)
 

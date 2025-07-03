@@ -1,16 +1,16 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(bun run:*)",
-      "Bash(code:*)",
-      "Bash(rg:*)",
-      "WebFetch(domain:biomejs.dev)",
-      "WebFetch(domain:code.visualstudio.com)",
-      "Bash(ls:*)",
-      "Bash(vsce create-publisher:*)",
-      "Bash(vsce ls:*)",
-      "Bash(vsce package:*)"
-    ],
-    "deny": []
-  }
+    "permissions": {
+        "allow": [
+            "Bash(bun run:*)",
+            "Bash(code:*)",
+            "Bash(rg:*)",
+            "WebFetch(domain:biomejs.dev)",
+            "WebFetch(domain:code.visualstudio.com)",
+            "Bash(ls:*)",
+            "Bash(vsce create-publisher:*)",
+            "Bash(vsce ls:*)",
+            "Bash(vsce package:*)"
+        ],
+        "deny": []
+    }
 }

@@ -177,6 +177,46 @@ function example() {
 4. Before folding, all code is unfolded to ensure a clean state
 5. Already folded functions are detected and skipped
 
+## Development
+
+This extension uses:
+
+- **Biome** for linting and formatting (not ESLint)
+- **TypeScript** for type safety
+- **Bun** as the runtime and package manager
+- **Vite** for building
+
+### Development Commands
+
+```bash
+# Install dependencies
+bun install
+
+# Run linting
+bun run lint
+
+# Run linting with auto-fix
+bun run lint:fix
+
+# Build the extension
+bun run build
+
+# Run tests
+bun run test
+
+# Package the extension
+bun run package
+
+# Bump version (patch)
+bun run version:patch
+
+# Bump version (minor)
+bun run version:minor
+
+# Publish to VS Code Marketplace
+bun run publish
+```
+
 ## Release Notes
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.

@@ -1,6 +1,6 @@
 {
     "name": "collapse-automation",
-    "version": "0.0.30",
+    "version": "0.0.31",
     "repository": {
         "type": "git",
         "url": "https://github.com/a-x-/vscode-collapse-automation"
@@ -21,14 +21,15 @@
     "private": false,
     "publisher": "ultra",
     "scripts": {
-        "lint": "biome check --apply .",
-        "prepublishOnly": "bun run package",
         "build": "vite build",
-        "lint:fix": "biome check --apply .",
+        "typecheck": "tsc --noEmit --skipLibCheck",
+        "lint": "bun run typecheck && biome check lib",
+        "lint:fix": "bun run typecheck && biome check lib --write",
         "test": "bun ./test/runTest.js",
-        "package": "bun run lint && bun run test && bun run build && vsce package --no-dependencies",
-        "publish": "vsce publish --no-dependencies && git push && git push --tags",
-        "version:patch": "bun scripts/bump-version.js"
+        "package": "bun run lint:fix && bun run test && bun run build && vsce package --no-dependencies",
+        "publish": "bun run package && vsce publish --no-dependencies && git push && git push --tags",
+        "version:patch": "bun scripts/bump-version.js",
+        "version:minor": "bun scripts/bump-version.js --minor"
     },
     "main": "./dist/extension.js",
     "devDependencies": {
