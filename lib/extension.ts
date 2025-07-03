@@ -225,9 +225,6 @@ export function activate(context: ExtensionContext): void {
 
         const document = editor.document;
 
-        // Save current cursor position
-        const savedSelections = editor.selections.map((sel) => new Selection(sel.anchor, sel.active));
-
         outputChannel.appendLine(`\n=== MANUAL COLLAPSE ALL at ${new Date().toISOString()} ===`);
         outputChannel.appendLine(`Document: ${document.uri.fsPath}`);
 
@@ -270,13 +267,13 @@ export function activate(context: ExtensionContext): void {
             }
 
             if (unfoldPositions.length > 0) {
-                editor.selections = unfoldPositions.map((pos) => new Selection(pos, pos));
-                await commands.executeCommand('editor.unfold');
+                // Unfold using selectionLines to avoid changing cursor position
+                const linesToUnfold = unfoldPositions.map((pos) => pos.line);
+                await commands.executeCommand('editor.unfold', {
+                    selectionLines: linesToUnfold,
+                });
             }
         }
-
-        // Restore cursor position
-        editor.selections = savedSelections;
 
         outputChannel.appendLine(`=== MANUAL COLLAPSE ALL COMPLETED ===\n`);
     });
@@ -318,9 +315,6 @@ async function analyzeAndFold(document: TextDocument, isManualCommand: boolean =
         outputChannel.appendLine('- No active editor for this document, skipping');
         return;
     }
-
-    // Save current cursor position
-    const savedSelections = editor.selections.map((sel) => new Selection(sel.anchor, sel.active));
 
     // If manual command, clear the manually unfolded list for this document
     if (isManualCommand) {
@@ -398,8 +392,11 @@ async function analyzeAndFold(document: TextDocument, isManualCommand: boolean =
         }
         if (unfoldPositions.length > 0) {
             outputChannel.appendLine(`- EXECUTING: editor.unfold for ${unfoldPositions.length} positions`);
-            editor.selections = unfoldPositions.map((pos) => new Selection(pos, pos));
-            await commands.executeCommand('editor.unfold');
+            // Unfold using selectionLines to avoid changing cursor position
+            const linesToUnfold = unfoldPositions.map((pos) => pos.line);
+            await commands.executeCommand('editor.unfold', {
+                selectionLines: linesToUnfold,
+            });
             outputChannel.appendLine(`- COMPLETED: editor.unfold`);
         }
     } else if (alwaysFold.length > 0) {
@@ -519,61 +516,65 @@ async function analyzeAndFold(document: TextDocument, isManualCommand: boolean =
             // Re-fold imports that were previously folded
             if (foldedImports.length > 0) {
                 outputChannel.appendLine(`- Re-folding ${foldedImports.length} imports that were previously folded`);
-                for (const importLine of foldedImports) {
-                    editor.selection = new Selection(importLine, 0, importLine, 0);
-                    await commands.executeCommand('editor.fold');
-                    await new Promise((resolve) => setTimeout(resolve, 10));
-                }
+                // Fold all imports at once without changing selection
+                await commands.executeCommand('editor.fold', {
+                    selectionLines: foldedImports,
+                });
             }
 
-            // Fold each function call at its start line
-            let foldedCount = 0;
+            // Collect lines to fold
+            const linesToFold: number[] = [];
             let skippedManual = 0;
             let skippedAlreadyFolded = 0;
 
             for (const call of functionCalls) {
-                try {
-                    // Check if user manually unfolded this
-                    if (!isManualCommand && manuallyUnfoldedLines.has(call.startLine)) {
-                        outputChannel.appendLine(
-                            `  - Skipped ${call.pattern} at line ${call.startLine + 1}: manually unfolded by user`,
-                        );
-                        skippedManual++;
-                        continue;
-                    }
-
-                    // Check if already folded
-                    const middleLine = call.startLine + 1;
-                    const isFolded = !editor.visibleRanges.some(
-                        (range) => range.start.line <= middleLine && range.end.line >= middleLine,
-                    );
-                    if (!isManualCommand && isFolded) {
-                        outputChannel.appendLine(
-                            `  - Skipped ${call.pattern} at line ${call.startLine + 1}: already folded`,
-                        );
-                        skippedAlreadyFolded++;
-                        continue;
-                    }
-
-                    // Position cursor at the start of the function call
-                    editor.selection = new Selection(call.startLine, 0, call.startLine, 0);
-                    // Fold the function call
-                    await commands.executeCommand('editor.fold');
-                    foldedCount++;
-
-                    // Remove from manually unfolded if we just folded it
-                    manuallyUnfoldedLines.delete(call.startLine);
-
-                    await new Promise((resolve) => setTimeout(resolve, 10));
-                } catch (e) {
+                // Check if user manually unfolded this
+                if (!isManualCommand && manuallyUnfoldedLines.has(call.startLine)) {
                     outputChannel.appendLine(
-                        `  - Failed to fold ${call.pattern} at line ${call.startLine + 1}: ${(e as Error).message}`,
+                        `  - Skipped ${call.pattern} at line ${call.startLine + 1}: manually unfolded by user`,
                     );
+                    skippedManual++;
+                    continue;
                 }
+
+                // Check if already folded
+                const middleLine = call.startLine + 1;
+                const isFolded = !editor.visibleRanges.some(
+                    (range) => range.start.line <= middleLine && range.end.line >= middleLine,
+                );
+                if (!isManualCommand && isFolded) {
+                    outputChannel.appendLine(
+                        `  - Skipped ${call.pattern} at line ${call.startLine + 1}: already folded`,
+                    );
+                    skippedAlreadyFolded++;
+                    continue;
+                }
+
+                linesToFold.push(call.startLine);
+                // Remove from manually unfolded if we're going to fold it
+                manuallyUnfoldedLines.delete(call.startLine);
             }
 
-            // Restore cursor position
-            editor.selections = savedSelections;
+            // Fold all function calls at once without changing selection
+            let foldedCount = 0;
+            if (linesToFold.length > 0) {
+                try {
+                    await commands.executeCommand('editor.fold', {
+                        selectionLines: linesToFold,
+                    });
+                    foldedCount = linesToFold.length;
+
+                    // Log what was folded
+                    for (const lineNum of linesToFold) {
+                        const call = functionCalls.find((c) => c.startLine === lineNum);
+                        if (call) {
+                            outputChannel.appendLine(`  - Folded ${call.pattern} at line ${lineNum + 1}`);
+                        }
+                    }
+                } catch (e) {
+                    outputChannel.appendLine(`  - Failed to fold lines: ${(e as Error).message}`);
+                }
+            }
 
             outputChannel.appendLine(
                 `- Folding completed: ${foldedCount} folded, ${skippedAlreadyFolded} already folded, ${skippedManual} manually unfolded by user`,
@@ -581,11 +582,6 @@ async function analyzeAndFold(document: TextDocument, isManualCommand: boolean =
         }
     } else {
         outputChannel.appendLine('- No folding rules to apply (no pragma and alwaysFold is empty)');
-    }
-
-    // Restore cursor position
-    if (savedSelections && savedSelections.length > 0) {
-        editor.selections = savedSelections;
     }
 
     isProcessing = false;

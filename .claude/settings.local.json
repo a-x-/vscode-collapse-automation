@@ -10,7 +10,8 @@
       "Bash(vsce create-publisher:*)",
       "Bash(vsce ls:*)",
       "Bash(vsce package:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": []
   }

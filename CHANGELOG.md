@@ -2,6 +2,22 @@
 
 All notable changes to the "collapse-automation" extension will be documented in this file.
 
+## [0.0.34] - 2025-01-03
+
+🐛 Fixed:
+
+- Fixed cursor jumping issue when folding code - now uses `selectionLines` parameter to fold without changing cursor position
+- Cursor position and multiple selections are now preserved during all folding operations
+- Removed unnecessary cursor position save/restore code since we no longer change selections
+
+🧽 Chore:
+
+- Reorganized test structure:
+  - Renamed `simple.test.ts` to `unit.test.ts`
+  - Renamed `extension.test.ts` to `bdd.test.ts`
+- Added comprehensive unit tests for cursor position preservation
+- Improved folding performance by batching fold operations
+
 ## [0.0.33] - 2025-01-03
 
 ✨ Added:
