@@ -5,26 +5,31 @@ Smart code folding for VS Code that automatically collapses function calls and c
 ## Features
 
 ### 🎯 AST-based Pattern Matching
+
 - Uses TypeScript AST parsing for accurate function call detection
 - Distinguishes between actual function calls and string literals
 - Supports complex nested function calls
 
 ### 📏 Smart Multi-line Detection
+
 - Automatically folds only multi-line function calls
 - Single-line function calls are detected but skipped (cannot be folded)
 - Provides statistics on both multi-line and single-line matches
 
 ### 🧠 Intelligent User Preference Tracking
+
 - Remembers when you manually unfold functions
 - Won't re-fold functions you've manually unfolded until next manual command
 - Tracks when you manually fold functions back
 
 ### 🔄 Precise Folding Algorithm
+
 - Unfolds all before folding to ensure clean state
 - Detects already folded functions to avoid redundant operations
 - Preserves cursor position during all folding operations
 
 ### 🛠️ Flexible Configuration
+
 - **alwaysFold**: Array of function call patterns to always fold (e.g., `["logger.info", "console.log"]`)
 - **neverFold**: Patterns that should never be folded in `@collapse` mode
 - **@collapse pragma**: Add `// @collapse` to any file to fold all code blocks
@@ -32,12 +37,14 @@ Smart code folding for VS Code that automatically collapses function calls and c
 - **enableCollapsePragma**: Enable/disable pragma functionality
 
 ### ⚡ Performance Optimizations
+
 - Immediate analysis on file switch (no delay)
 - Debounced analysis for text changes (500ms)
 - Language filtering - only processes JS/JSX/TS/TSX files
 - Recursion prevention for output channels
 
 ### 📝 Supported Languages
+
 - JavaScript (`.js`)
 - TypeScript (`.ts`)
 - JSX (`.jsx`)
@@ -47,36 +54,118 @@ Smart code folding for VS Code that automatically collapses function calls and c
 
 This extension contributes the following settings:
 
-* `collapse-automation.alwaysFold`: Array of function call patterns to always fold
-* `collapse-automation.neverFold`: Patterns to never fold in `@collapse` mode
-* `collapse-automation.collapseLevel`: Folding level for `@collapse` pragma (default: 1)
-* `collapse-automation.enableCollapsePragma`: Enable/disable `@collapse` pragma functionality
+- `collapse-automation.alwaysFold`: Array of function call patterns to always fold
+- `collapse-automation.neverFold`: Patterns to never fold in `@collapse` mode
+- `collapse-automation.collapseLevel`: Folding level for `@collapse` pragma (default: 1)
+- `collapse-automation.enableCollapsePragma`: Enable/disable `@collapse` pragma functionality
 
 ## Commands
 
-* `Auto Collapse: Run Analysis` - Manually trigger folding analysis on the current file
+- `Collapse Automation: Collapse all non-important code blocks` - Analyzes and folds function calls based on your patterns
+- `Collapse Automation: Collapse all blocks (Outline View)` - Folds all code blocks like `@collapse` pragma but without adding it to file
 
 ## Usage Examples
 
 ### Pattern-based Folding
+
 ```json
 {
   "collapse-automation.alwaysFold": [
     "logger.info",
     "logger.error",
+    "logger.warn",
+    "logger.debug",
+    "logger.trace",
     "console.log",
-    "console.error"
+    "console.error",
+    "console.warn",
+    "console.debug",
+    "console.info",
+    "console.trace",
+    "console.group",
+    "console.groupEnd",
+    "console.time",
+    "console.timeEnd",
+    "debugger",
+    "assert",
+    "chai.expect",
+    "expect",
+    "cy.log",
+    "cy.debug"
+  ]
+}
+```
+
+### Common Use Cases
+
+#### For Backend Development
+
+```json
+{
+  "collapse-automation.alwaysFold": [
+    "logger.info",
+    "logger.debug",
+    "logger.trace",
+    "winston.info",
+    "winston.debug",
+    "pino.info",
+    "bunyan.info"
+  ]
+}
+```
+
+#### For Frontend Development
+
+```json
+{
+  "collapse-automation.alwaysFold": [
+    "console.log",
+    "console.debug",
+    "console.info",
+    "debugger"
+  ]
+}
+```
+
+#### For Testing
+
+```json
+{
+  "collapse-automation.alwaysFold": [
+    "describe",
+    "it",
+    "test",
+    "beforeEach",
+    "afterEach",
+    "cy.log",
+    "cy.debug"
   ]
 }
 ```
 
 ### Pragma-based Folding
+
 ```javascript
 // @collapse
 // This file will have all code blocks folded according to collapseLevel setting
 
 function example() {
-  // code here
+  console.log("This will be folded", {
+    because: "it's a multi-line function call",
+    and: "matches the alwaysFold patterns",
+    such: "awesome",
+    much: "wow"
+  });
+}
+```
+
+Will be visually folded like this:
+
+```javascript
+function example() {
+  // This will be folded
+> console.log("This will be folded", {
+  });
 }
 ```
 

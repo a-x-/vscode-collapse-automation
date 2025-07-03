@@ -96,9 +96,29 @@ bun run version:patch   # Увеличить patch версию
 
 Тесты используют фреймворк тестирования расширений VS Code. Запускайте с помощью `bun run test`. Файлы тестов находятся в `test/suite/`.
 
+## Workflow для изменений
+
+После каждого успешного изменения функциональности:
+
+1. **Сделать билд**: `bun run build`
+2. **Обновить CHANGELOG.md**: Добавить описание изменений с указанием версии
+3. **Сделать коммит**: Коммит с описанием изменений
+4. **Предложить публикацию**: Напомнить о возможности опубликовать новую версию
+5. **Push изменений**: `git push` после подтверждения
+
+### Slash-команды
+
+- `/p`: Выполнение всех шагов 1–5 для публикации новой версии расширения
+
 ## Публикация
 
-Расширение опубликовано в VS Code marketplace под ID `a-x-.collapse-automation`. Перед публикацией необходимо обновить версию в `package.json`.
+Расширение опубликовано в VS Code marketplace под ID `a-x-.collapse-automation`.
+
+Для публикации:
+
+1. `vsce login a-x-` (ввести Personal Access Token)
+2. `vsce publish --no-dependencies` или `vsce publish --packagePath <file.vsix>`
+3. Или загрузить через [VS Code Marketplace Publisher Dashboard](https://marketplace.visualstudio.com/manage)
 
 ## Bun.sh
 

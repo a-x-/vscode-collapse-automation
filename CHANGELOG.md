@@ -2,6 +2,44 @@
 
 All notable changes to the "collapse-automation" extension will be documented in this file.
 
+## [0.0.28] - 2025-01-03
+
+✨ Added:
+
+- Updated VS Code settings
+
+🧽 Chore:
+
+- Better code formatting with biome (space indentation, single quotes)
+- Organized imports using biome
+- Code reformatted to match project style guidelines
+
+## [0.0.26] - 2025-01-03
+
+✨ Added:
+
+- VS Code settings for biome formatter
+- Development workflow instructions in CLAUDE.md
+- More detailed usage examples with visual representation
+
+🔄 Changed:
+
+- Updated biome configuration with line width 120
+- Improved documentation
+
+## [0.0.25] - 2025-01-03
+
+✨ Added:
+
+- New command "Collapse all blocks (Outline View)" - works like @collapse pragma but manual
+- More usage examples for alwaysFold configuration
+- MIT license
+
+🔄 Changed:
+
+- Renamed command from "Run Analysis" to "Collapse all non-important code blocks"
+- Command titles now more descriptive
+
 ## [0.0.19] - 2025-01-03
 
 ✨ Added:
