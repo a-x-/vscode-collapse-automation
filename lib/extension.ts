@@ -432,6 +432,77 @@ async function analyzeAndFold(document: TextDocument, isManualCommand: boolean =
             }
             const manuallyUnfoldedLines = manuallyUnfolded.get(docUri) || new Set<number>();
 
+            // Save currently folded imports before unfolding all
+            const foldedImports: number[] = [];
+            let inImportBlock = false;
+            let importStartLine = -1;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const trimmedLine = line.trim();
+
+                // Check if this starts an import statement
+                if (
+                    !inImportBlock &&
+                    (trimmedLine.startsWith('import ') ||
+                        (trimmedLine.startsWith('const ') && trimmedLine.includes('= require(')) ||
+                        trimmedLine.startsWith('require(') ||
+                        (trimmedLine.startsWith('export ') && trimmedLine.includes(' from ')))
+                ) {
+                    inImportBlock = true;
+                    importStartLine = i;
+
+                    // Check if it's a single-line import
+                    if (trimmedLine.includes(';') || trimmedLine.endsWith(')')) {
+                        inImportBlock = false;
+
+                        // Check if this import is folded
+                        const middleLine = i + 1;
+                        const isFolded = !editor.visibleRanges.some(
+                            (range) => range.start.line <= middleLine && range.end.line >= middleLine,
+                        );
+                        if (isFolded) {
+                            foldedImports.push(i);
+                            outputChannel.appendLine(
+                                `  - Saving folded import at line ${i + 1}: ${trimmedLine.substring(0, 50)}...`,
+                            );
+                        }
+                    }
+                } else if (inImportBlock && (trimmedLine.includes(';') || trimmedLine.endsWith('}'))) {
+                    // End of multi-line import
+                    inImportBlock = false;
+
+                    // Check if this multi-line import is folded
+                    if (importStartLine >= 0) {
+                        const middleLine = importStartLine + 1;
+                        const isFolded = !editor.visibleRanges.some(
+                            (range) => range.start.line <= middleLine && range.end.line >= i,
+                        );
+                        if (isFolded) {
+                            foldedImports.push(importStartLine);
+                            outputChannel.appendLine(
+                                `  - Saving folded multi-line import at line ${importStartLine + 1}`,
+                            );
+                        }
+                    }
+                }
+
+                // Stop checking after we hit non-import code (optimization)
+                if (
+                    !inImportBlock &&
+                    !trimmedLine.startsWith('import') &&
+                    !trimmedLine.startsWith('const') &&
+                    !trimmedLine.startsWith('export') &&
+                    !trimmedLine.startsWith('//') &&
+                    trimmedLine.length > 0 &&
+                    !trimmedLine.startsWith('*') &&
+                    !trimmedLine.startsWith('/*')
+                ) {
+                    // We've reached actual code, no more imports expected at top level
+                    break;
+                }
+            }
+
             // Unfold all first to ensure clean state
             outputChannel.appendLine(`- EXECUTING: editor.unfoldAll to ensure clean state`);
             await commands.executeCommand('editor.unfoldAll');
@@ -439,6 +510,16 @@ async function analyzeAndFold(document: TextDocument, isManualCommand: boolean =
 
             // Small delay to ensure VS Code processed the unfold
             await new Promise((resolve) => setTimeout(resolve, 50));
+
+            // Re-fold imports that were previously folded
+            if (foldedImports.length > 0) {
+                outputChannel.appendLine(`- Re-folding ${foldedImports.length} imports that were previously folded`);
+                for (const importLine of foldedImports) {
+                    editor.selection = new Selection(importLine, 0, importLine, 0);
+                    await commands.executeCommand('editor.fold');
+                    await new Promise((resolve) => setTimeout(resolve, 10));
+                }
+            }
 
             // Fold each function call at its start line
             let foldedCount = 0;

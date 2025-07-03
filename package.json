@@ -23,9 +23,9 @@
     "scripts": {
         "build": "vite build",
         "typecheck": "tsc --noEmit --skipLibCheck",
-        "lint": "bun run typecheck && biome check lib",
+        "lint": "bun run typecheck && biome ci lib",
         "lint:fix": "bun run typecheck && biome check lib --write",
-        "test": "bun ./test/runTest.js",
+        "test": "bun ./test/runTest.ts",
         "package": "bun run lint:fix && bun run test && bun run build && vsce package --no-dependencies",
         "publish": "bun run package && vsce publish --no-dependencies && git push && git push --tags",
         "version:patch": "bun scripts/bump-version.js",

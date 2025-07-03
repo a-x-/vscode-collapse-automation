@@ -4,6 +4,13 @@ All notable changes to the "collapse-automation" extension will be documented in
 
 ## [0.0.31] - 2025-01-03
 
+✨ Added:
+
+- Comprehensive BDD (Behavior-Driven Development) tests covering all user scenarios
+- Test documentation explaining BDD approach and test structure
+- Fixed test runner to use Bun directly without TypeScript compilation step
+- Import preservation: when unfolding all, previously folded imports are re-folded automatically
+
 🧽 Chore:
 
 - Added automatic git tagging to version bump script
@@ -13,6 +20,8 @@ All notable changes to the "collapse-automation" extension will be documented in
 - Added Development section to README noting Biome usage (not ESLint)
 - Added note to CLAUDE.md about not using `any` types
 - Fixed walkNode function to use proper TypeScript types without `any`
+- Converted test suite from JavaScript to TypeScript
+- Added test:watch script for development
 
 ## [0.0.28] - 2025-01-03
 
