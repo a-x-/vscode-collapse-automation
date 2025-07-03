@@ -1,8 +1,19 @@
-.vscode/**
-.vscode-test/**
-test/**
+.vscode
+node_modules/
+.vscode-test/
+test/
+lib/
+out/
+src/
+*.md
+
+# Config files
 .gitignore
-vsc-extension-quickstart.md
-**/jsconfig.json
-**/*.map
-**/.eslintrc.json
+.vscodeignore
+biome.json
+jsconfig.json
+vite.config.js
+bun.lockb
+
+# Keep the build output
+!dist/
