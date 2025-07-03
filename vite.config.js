@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   build: {
     lib: {
-      entry: 'lib/extension.js',
+      entry: 'dist/extension.js',
       formats: ['cjs'],
       fileName: 'extension',
     },
