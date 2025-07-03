@@ -36,7 +36,20 @@ suite('Collapse Automation Simple Tests', () => {
     test('Configuration should have correct defaults', () => {
         const config = vscode.workspace.getConfiguration('collapse-automation');
 
-        assert.deepStrictEqual(config.get('alwaysFold'), []);
+        assert.deepStrictEqual(config.get('alwaysFold'), [
+            'logger.info',
+            'logger.warn',
+            'logger.error',
+            'logger.debug',
+            'logger.trace',
+            'logger.fatal',
+            'console.log',
+            'console.warn',
+            'console.error',
+            'console.debug',
+            'console.trace',
+            'console.info'
+        ]);
         assert.deepStrictEqual(config.get('neverFold'), ['main']);
         assert.strictEqual(config.get('collapseLevel'), 1);
         assert.strictEqual(config.get('enableCollapsePragma'), true);

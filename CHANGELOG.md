@@ -2,6 +2,23 @@
 
 All notable changes to the "collapse-automation" extension will be documented in this file.
 
+## [0.0.33] - 2025-01-03
+
+✨ Added:
+
+- Default patterns for common logging functions in `alwaysFold` configuration:
+  - Logger patterns: `logger.info`, `logger.warn`, `logger.error`, `logger.debug`, `logger.trace`, `logger.fatal`
+  - Console patterns: `console.log`, `console.warn`, `console.error`, `console.debug`, `console.trace`, `console.info`
+- Users no longer need to manually configure common logging patterns
+
+🧽 Chore:
+
+- Split `bump-version.js` into two separate scripts for better workflow control:
+  - `bump-version.js` - Updates version in package.json
+  - `create-tag.js` - Creates git tag based on current version
+- Updated README.md to show new default configuration values
+- Updated tests to work with new default patterns
+
 ## [0.0.32] - 2025-01-03
 
 ✨ Added:

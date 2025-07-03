@@ -1,6 +1,6 @@
 {
     "name": "collapse-automation",
-    "version": "0.0.32",
+    "version": "0.0.33",
     "repository": {
         "type": "git",
         "url": "https://github.com/a-x-/vscode-collapse-automation"
@@ -30,7 +30,7 @@
         "publish": "bun run package && vsce publish --no-dependencies && git push && git push --tags",
         "version:patch": "bun scripts/bump-version.js",
         "version:minor": "bun scripts/bump-version.js --minor",
-        "create:tag": "bun scripts/create-tag.js"
+        "version:tag": "bun scripts/create-tag.js"
     },
     "main": "./dist/extension.js",
     "devDependencies": {
@@ -76,7 +76,20 @@
             "properties": {
                 "collapse-automation.alwaysFold": {
                     "type": "array",
-                    "default": [],
+                    "default": [
+                        "logger.info",
+                        "logger.warn",
+                        "logger.error",
+                        "logger.debug",
+                        "logger.trace",
+                        "logger.fatal",
+                        "console.log",
+                        "console.warn",
+                        "console.error",
+                        "console.debug",
+                        "console.trace",
+                        "console.info"
+                    ],
                     "description": "An array of strings or simple regex patterns. Any line containing a match will always be folded.",
                     "items": {
                         "type": "string"

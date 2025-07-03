@@ -55,9 +55,13 @@ Smart code folding for VS Code that automatically collapses function calls and c
 This extension contributes the following settings:
 
 - `collapse-automation.alwaysFold`: Array of function call patterns to always fold
+  - Default: `["logger.info", "logger.warn", "logger.error", "logger.debug", "logger.trace", "logger.fatal", "console.log", "console.warn", "console.error", "console.debug", "console.trace", "console.info"]`
 - `collapse-automation.neverFold`: Patterns to never fold in `@collapse` mode
-- `collapse-automation.collapseLevel`: Folding level for `@collapse` pragma (default: 1)
+  - Default: `["main"]`
+- `collapse-automation.collapseLevel`: Folding level for `@collapse` pragma
+  - Default: `1`
 - `collapse-automation.enableCollapsePragma`: Enable/disable `@collapse` pragma functionality
+  - Default: `true`
 
 ## Commands
 
@@ -68,20 +72,18 @@ This extension contributes the following settings:
 
 ### Pattern-based Folding
 
+The extension comes with sensible defaults for common logging patterns. You can extend or override these defaults:
+
 ```json
 {
   "collapse-automation.alwaysFold": [
-    "logger.info",
-    "logger.error",
-    "logger.warn",
-    "logger.debug",
-    "logger.trace",
-    "console.log",
-    "console.error",
-    "console.warn",
-    "console.debug",
-    "console.info",
-    "console.trace",
+    // These are already included by default:
+    // "logger.info", "logger.warn", "logger.error", 
+    // "logger.debug", "logger.trace", "logger.fatal",
+    // "console.log", "console.warn", "console.error",
+    // "console.debug", "console.trace", "console.info",
+    
+    // Add your custom patterns:
     "console.group",
     "console.groupEnd",
     "console.time",
