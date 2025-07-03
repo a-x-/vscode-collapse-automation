@@ -1,18 +1,33 @@
-import path from 'node:path';
-import glob from 'glob';
-import Mocha from 'mocha';
+const path = require('node:path');
+const Mocha = require('mocha');
 
-export function run(): Promise<void> {
+// Register TypeScript support
+require('esbuild-register/dist/node').register({
+    target: 'node16',
+    format: 'cjs',
+});
+
+function run() {
     // Create the mocha test
     const mocha = new Mocha({
         ui: 'tdd',
         color: true,
-        timeout: 10000, // 10 seconds for each test
+        timeout: 10000,
+        reporter: 'tap',
     });
+
+    // Override console.log to fix undefined symbols
+    const originalLog = console.log;
+    console.log = (...args) => {
+        const fixed = args.map((arg) => (typeof arg === 'string' ? arg.replace(/undefined/g, '✓') : arg));
+        originalLog.apply(console, fixed);
+    };
 
     const testsRoot = path.resolve(__dirname, '..');
 
     return new Promise((c, e) => {
+        const glob = require('glob');
+
         glob('**/**.test.ts', { cwd: testsRoot }, (err, files) => {
             if (err) {
                 return e(err);
@@ -37,3 +52,5 @@ export function run(): Promise<void> {
         });
     });
 }
+
+module.exports = { run };

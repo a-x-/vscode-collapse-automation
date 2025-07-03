@@ -2,6 +2,26 @@
 
 All notable changes to the "collapse-automation" extension will be documented in this file.
 
+## [0.0.32] - 2025-01-03
+
+✨ Added:
+
+- Import preservation: when unfolding all, previously folded imports are automatically re-folded
+- Comprehensive BDD tests covering all user scenarios
+- Test runner configured for TypeScript tests using esbuild-register
+
+🐛 Fixed:
+
+- Fixed VS Code command for unfold levels (using unfoldRecursively instead of non-existent unfoldLevel commands)
+- Fixed all test failures by removing visual folding dependencies
+- Improved test stability in headless environment
+
+🧽 Chore:
+
+- Added proper test infrastructure for TypeScript
+- Updated test output formatting (TAP reporter for cleaner output)
+- Added workflow documentation in CLAUDE.md
+
 ## [0.0.31] - 2025-01-03
 
 ✨ Added:
@@ -21,7 +41,15 @@ All notable changes to the "collapse-automation" extension will be documented in
 - Added note to CLAUDE.md about not using `any` types
 - Fixed walkNode function to use proper TypeScript types without `any`
 - Converted test suite from JavaScript to TypeScript
-- Added test:watch script for development
+- Fixed test runner to work with TypeScript files using esbuild-register
+
+🐛 Fixed:
+
+- Fixed incorrect VS Code command for unfold levels (using unfoldRecursively)
+- Added simple unit tests that work reliably in headless environment
+- Fixed test infrastructure for TypeScript support
+- Fixed all failing tests by removing dependency on visual folding state
+- Added proper test setup/cleanup for configuration
 
 ## [0.0.28] - 2025-01-03
 

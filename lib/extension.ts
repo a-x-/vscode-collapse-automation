@@ -241,7 +241,10 @@ export function activate(context: ExtensionContext): void {
         // Apply collapse level
         if (collapseLevel > 0) {
             outputChannel.appendLine(`- Applying collapse level ${collapseLevel}`);
-            await commands.executeCommand(`editor.unfoldLevel${collapseLevel}`);
+            // VS Code doesn't have unfoldLevel command, so we need to unfold recursively
+            for (let i = 0; i < collapseLevel; i++) {
+                await commands.executeCommand('editor.unfoldRecursively');
+            }
         }
 
         // Apply neverFold patterns
@@ -365,9 +368,11 @@ async function analyzeAndFold(document: TextDocument, isManualCommand: boolean =
         outputChannel.appendLine('- COMPLETED: editor.foldAll');
 
         if (collapseLevel > 0) {
-            outputChannel.appendLine(`- EXECUTING: editor.unfoldLevel${collapseLevel}`);
-            await commands.executeCommand(`editor.unfoldLevel${collapseLevel}`);
-            outputChannel.appendLine(`- COMPLETED: editor.unfoldLevel${collapseLevel}`);
+            outputChannel.appendLine(`- EXECUTING: unfold recursively ${collapseLevel} times`);
+            for (let i = 0; i < collapseLevel; i++) {
+                await commands.executeCommand('editor.unfoldRecursively');
+            }
+            outputChannel.appendLine(`- COMPLETED: unfold recursively`);
         }
         const unfoldPositions: Position[] = [];
         if (neverFold.length > 0) {

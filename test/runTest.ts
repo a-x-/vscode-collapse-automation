@@ -15,7 +15,21 @@ async function main() {
         await runTests({
             extensionDevelopmentPath,
             extensionTestsPath,
-            launchArgs: ['--disable-extensions'], // Disable other extensions during testing
+            launchArgs: [
+                '--disable-extensions', // Disable other extensions during testing
+                '--disable-workspace-trust', // Disable workspace trust prompts
+                '--skip-welcome', // Skip welcome page
+                '--skip-release-notes', // Skip release notes
+                '--disable-telemetry', // Disable telemetry
+                '--disable-updates', // Disable update checks
+                '--disable-crash-reporter', // Disable crash reporter
+            ],
+            // Set environment variables to suppress warnings
+            extensionTestsEnv: {
+                ...process.env,
+                VSCODE_SKIP_PRELAUNCH: '1',
+                NODE_NO_WARNINGS: '1',
+            },
         });
     } catch (err) {
         console.error('Failed to run tests', err);

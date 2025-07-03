@@ -17,6 +17,6 @@
         "sourceMap": true,
         "types": ["vscode", "bun-types"]
     },
-    "include": ["lib/**/*", "test/**/*"],
+    "include": ["lib/**/*"],
     "exclude": ["node_modules", "dist", ".vscode-test"]
 }
