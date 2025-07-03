@@ -1,106 +1,108 @@
 {
-	"name": "collapse-automation",
-	"version": "0.0.28",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/a-x-/vscode-collapse-automation"
-	},
-	"description": "Smart code folding for VS Code - automatically collapse function calls and code blocks based on patterns",
-	"displayName": "Collapse Automation",
-	"icon": "dist/logo.png",
-	"keywords": [
-		"fold",
-		"collapse",
-		"logger",
-		"code folding",
-		"productivity"
-	],
-	"engines": {
-		"vscode": "^1.89.0"
-	},
-	"private": false,
-	"publisher": "a-x-",
-	"scripts": {
-		"lint": "biome check --apply .",
-		"build": "vite build && bun scripts/bump-version.js",
-		"test": "bun ./test/runTest.js",
-		"package": "bun run build && vsce package --no-dependencies",
-		"publish": "bun run package && vsce publish --no-dependencies",
-		"version:patch": "bun scripts/bump-version.js"
-	},
-	"main": "./dist/extension.js",
-	"devDependencies": {
-		"@biomejs/biome": "^2.0.6",
-		"@types/bun": "latest",
-		"@types/glob": "^7.1.1",
-		"@types/mocha": "^10.0.10",
-		"@types/vscode": "^1.89.0",
-		"@vscode/test-electron": "^2.5.2",
-		"glob": "^7.1.6",
-		"typescript": "^5.8.3",
-		"vite": "^7.0.1",
-		"vscode-test": "^1.3.0"
-	},
-	"activationEvents": [
-		"onLanguage:javascript",
-		"onLanguage:typescript",
-		"onLanguage:javascriptreact",
-		"onLanguage:typescriptreact",
-		"onLanguage:python",
-		"onLanguage:java",
-		"onLanguage:csharp",
-		"onLanguage:go",
-		"onLanguage:rust"
-	],
-	"categories": [
-		"Other"
-	],
-	"contributes": {
-		"commands": [
-			{
-				"command": "collapse-automation.activate",
-				"title": "Collapse Automation: Collapse all non-important code blocks"
-			},
-			{
-				"command": "collapse-automation.collapseAll",
-				"title": "Collapse Automation: Collapse all blocks (Outline View)"
-			}
-		],
-		"configuration": {
-			"title": "Auto Collapse Blocks",
-			"properties": {
-				"collapse-automation.alwaysFold": {
-					"type": "array",
-					"default": [],
-					"description": "An array of strings or simple regex patterns. Any line containing a match will always be folded.",
-					"items": {
-						"type": "string"
-					}
-				},
-				"collapse-automation.neverFold": {
-					"type": "array",
-					"default": [
-						"main"
-					],
-					"description": "An array of strings or simple regex patterns. In '@collapse' mode, any line containing a match will be forcibly unfolded.",
-					"items": {
-						"type": "string"
-					}
-				},
-				"collapse-automation.collapseLevel": {
-					"type": "integer",
-					"default": 1,
-					"description": "The folding level to apply when '@collapse' pragma is active. A value of 0 or -1 will collapse all levels deeply."
-				},
-				"collapse-automation.enableCollapsePragma": {
-					"type": "boolean",
-					"default": true,
-					"description": "Enable/disable the '@collapse' pragma functionality. When disabled, only 'alwaysFold' patterns will be processed."
-				}
-			}
-		}
-	},
-	"dependencies": {
-		"@typescript-eslint/typescript-estree": "^8.35.1"
-	}
+    "name": "collapse-automation",
+    "version": "0.0.30",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/a-x-/vscode-collapse-automation"
+    },
+    "description": "Smart code folding for VS Code - automatically collapse function calls and code blocks based on patterns",
+    "displayName": "Collapse Automation",
+    "icon": "dist/logo.png",
+    "keywords": [
+        "fold",
+        "collapse",
+        "logger",
+        "code folding",
+        "productivity"
+    ],
+    "engines": {
+        "vscode": "^1.89.0"
+    },
+    "private": false,
+    "publisher": "ultra",
+    "scripts": {
+        "lint": "biome check --apply .",
+        "prepublishOnly": "bun run package",
+        "build": "vite build",
+        "lint:fix": "biome check --apply .",
+        "test": "bun ./test/runTest.js",
+        "package": "bun run lint && bun run test && bun run build && vsce package --no-dependencies",
+        "publish": "vsce publish --no-dependencies && git push && git push --tags",
+        "version:patch": "bun scripts/bump-version.js"
+    },
+    "main": "./dist/extension.js",
+    "devDependencies": {
+        "@biomejs/biome": "^2.0.6",
+        "@types/bun": "latest",
+        "@types/glob": "^7.1.1",
+        "@types/mocha": "^10.0.10",
+        "@types/vscode": "^1.89.0",
+        "@vscode/test-electron": "^2.5.2",
+        "glob": "^7.1.6",
+        "typescript": "^5.8.3",
+        "vite": "^7.0.1",
+        "vscode-test": "^1.3.0"
+    },
+    "activationEvents": [
+        "onLanguage:javascript",
+        "onLanguage:typescript",
+        "onLanguage:javascriptreact",
+        "onLanguage:typescriptreact",
+        "onLanguage:python",
+        "onLanguage:java",
+        "onLanguage:csharp",
+        "onLanguage:go",
+        "onLanguage:rust"
+    ],
+    "categories": [
+        "Other"
+    ],
+    "contributes": {
+        "commands": [
+            {
+                "command": "collapse-automation.activate",
+                "title": "Collapse Automation: Collapse all non-important code blocks"
+            },
+            {
+                "command": "collapse-automation.collapseAll",
+                "title": "Collapse Automation: Collapse all blocks (Outline View)"
+            }
+        ],
+        "configuration": {
+            "title": "Auto Collapse Blocks",
+            "properties": {
+                "collapse-automation.alwaysFold": {
+                    "type": "array",
+                    "default": [],
+                    "description": "An array of strings or simple regex patterns. Any line containing a match will always be folded.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "collapse-automation.neverFold": {
+                    "type": "array",
+                    "default": [
+                        "main"
+                    ],
+                    "description": "An array of strings or simple regex patterns. In '@collapse' mode, any line containing a match will be forcibly unfolded.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "collapse-automation.collapseLevel": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "The folding level to apply when '@collapse' pragma is active. A value of 0 or -1 will collapse all levels deeply."
+                },
+                "collapse-automation.enableCollapsePragma": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable/disable the '@collapse' pragma functionality. When disabled, only 'alwaysFold' patterns will be processed."
+                }
+            }
+        }
+    },
+    "dependencies": {
+        "@typescript-eslint/typescript-estree": "^8.35.1"
+    }
 }
