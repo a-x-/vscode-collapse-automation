@@ -3,7 +3,8 @@
     "allow": [
       "Bash(bun run:*)",
       "Bash(code:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "WebFetch(domain:biomejs.dev)"
     ],
     "deny": []
   }

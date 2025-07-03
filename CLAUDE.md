@@ -16,10 +16,8 @@ alwaysApply: false
 
 ```bash
 bun install              # Установить зависимости
-bun run compile         # Компилировать TypeScript
-bun run watch           # Компилировать TypeScript в режиме наблюдения
 bun run lint            # Запустить линтер/форматтер Biome
-bun run build           # Компилировать TS и собрать расширение с помощью Vite
+bun run build           # Собрать расширение с помощью Vite
 bun run test            # Запустить тесты расширения VS Code
 bun run package         # Создать .vsix пакет
 bun run publish         # Опубликовать в VS Code marketplace
@@ -32,6 +30,27 @@ bun run version:patch   # Увеличить patch версию
 
 1. **Режим прагмы**: Когда в файле найдено `// @collapse`, сворачивает все блоки кода с учетом настроек `collapseLevel` и паттернов `neverFold`
 2. **Режим паттернов**: Сворачивает строки, соответствующие паттернам `alwaysFold` (например, `logger.info`, `logger.error`)
+
+## Основные возможности
+
+1. **AST-based Pattern Matching** - Использует AST парсинг для точного определения вызовов функций
+2. **Multi-line Function Call Folding** - Сворачивает только многострочные вызовы функций
+3. **Single-line Function Detection** - Определяет и подсчитывает однострочные функции (не сворачивает)
+4. **User Preference Tracking** - Запоминает, когда пользователь вручную разворачивает функции и не сворачивает их пока пользователь не запустит команду вручную или не свернет их сам
+5. **Unfold All Before Folding** - HACK: Сначала разворачивает все, затем сворачивает нужное для точности. Хотим отказаться от этого в будущем, когда поймем как сделать надежно без этого
+6. **Already Folded Detection** - Определяет уже свернутые функции и не сворачивает повторно
+7. **@collapse Pragma Support** - Поддержка прагмы `// @collapse` для сворачивания всех верхних блоков кода, чтобы прочитать как оглавление (аналог VS Code Outline View)
+8. **Pattern-based Folding** - Сворачивание на основе настраиваемых паттернов (alwaysFold), где можно указать, какие функции всегда сворачивать, например, `logger.info`, `logger.error`, `console.log`, `console.error`, `console.log` и тп.
+9. **Never Fold Patterns** - Паттерны, которые никогда не сворачиваются в режиме @collapse
+10. **Immediate File Switch Analysis** - Немедленный анализ при переключении файлов
+11. **Debounced Text Change Analysis** - Отложенный анализ при изменении текста (500мс)
+12. **Manual Command** - Ручная команда для запуска анализа
+13. **Cursor Position Preservation** - Сохранение позиции курсора при сворачивании
+14. **Language Filtering** - HACK: Работает только с JS/JSX/TS/TSX файлами. Мы добавим другие языки когда будем уверены в стабильности работы
+15. **Recursion Prevention** - Предотвращение рекурсии при анализе output каналов
+16. **Detailed Logging** - Подробное логирование всех операций
+17. **Configurable Collapse Level** - Настраиваемый уровень сворачивания для @collapse
+18. **Enable/Disable Pragma** - Возможность отключения функциональности @collapse
 
 ### Ключевые компоненты
 
