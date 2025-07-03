@@ -26,6 +26,12 @@
 			"trailingCommas": "all"
 		}
 	},
+	"typescript": {
+		"formatter": {
+			"quoteStyle": "single",
+			"trailingCommas": "all"
+		}
+	},
 	"assist": {
 		"enabled": true,
 		"actions": {

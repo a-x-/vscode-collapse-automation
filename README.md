@@ -1,27 +1,49 @@
-# Auto Collapse Blocks - VS Code Extension
+# Collapse Automation - VS Code Extension
 
-[VS code extension install page](https://marketplace.visualstudio.com/items?itemName=mextner.collapse-automation&ssr=false#overview)
-This is the README for extension "collapse-automation" in VS Code. This extension allows you to add `@collapse` annotation to the top of your code file and auto-magically collapse all code blocks within that file.
+Smart code folding for VS Code that automatically collapses logger calls and code blocks based on configurable patterns.
 
 ## Features
 
-> Tip: Only the language file listed below will work with this extension, for more language support, please submit an issue and we will add them shortly!
+### 🎯 Smart Function Call Detection
+- Uses AST parsing to accurately detect function calls (not just string matches)
+- Automatically folds multi-line function calls like `logger.info()`, `console.log()`, etc.
+- Single-line calls are ignored since they can't be folded
 
-- `.js`
-- `.ts`
-- `.css`
-- `.scss`
-- `.md`
+### 🔄 Intelligent Folding
+- Immediate analysis when switching files (no delay)
+- Respects user preferences - won't re-fold functions you manually unfold
+- Tracks when you manually fold/unfold functions
+- Preserves cursor position during folding operations
 
-This extension will listen on file open/changed/focus to enforce auto collapsing.
+### 🛠️ Flexible Configuration
+- **alwaysFold**: Patterns for function calls to always fold (e.g., `["logger.info", "console.log"]`)
+- **neverFold**: Patterns that should never be folded when using `@collapse` pragma
+- **@collapse pragma**: Add `// @collapse` to any file to fold all code blocks
+
+### 📝 Supported Languages
+- JavaScript (`.js`)
+- TypeScript (`.ts`)
+- JSX (`.jsx`)
+- TSX (`.tsx`)
 
 ## Extension Settings
 
+This extension contributes the following settings:
+
+* `collapse-automation.alwaysFold`: Array of function call patterns to always fold
+* `collapse-automation.neverFold`: Patterns to never fold in `@collapse` mode
+* `collapse-automation.collapseLevel`: Folding level for `@collapse` pragma (default: 1)
+* `collapse-automation.enableCollapsePragma`: Enable/disable `@collapse` pragma functionality
+
+## Commands
+
+* `Auto Collapse: Run Analysis` - Manually trigger folding analysis on the current file
+
 ## Release Notes
 
-### 0.0.1
+### 0.0.18
 
-Initial release
+Latest stable release with all features
 
 ---
 

@@ -1,20 +1,26 @@
-const vscode = require("vscode");
-const { parse } = require("@typescript-eslint/typescript-estree");
+import * as vscode from 'vscode';
+import { parse } from '@typescript-eslint/typescript-estree';
 
-let outputChannel;
-let timeout = null;
+let outputChannel: vscode.OutputChannel;
+let timeout: NodeJS.Timeout | null = null;
 let isProcessing = false;
 // Map to store manually unfolded functions per document
-const manuallyUnfolded = new Map(); // Map<documentUri, Set<lineNumber>>
+const manuallyUnfolded = new Map<string, Set<number>>(); // Map<documentUri, Set<lineNumber>>
+
+interface FunctionCall {
+	pattern: string;
+	startLine: number;
+	endLine: number;
+}
 
 /**
  * Find function calls matching the pattern using AST and return their locations
- * @param {string} text - The full document text
- * @param {string[]} patterns - The patterns to match (e.g., ["logger.info", "logger.error"])
- * @returns {Array<{pattern: string, startLine: number, endLine: number}>} - Array of matches with line numbers
+ * @param text - The full document text
+ * @param patterns - The patterns to match (e.g., ["logger.info", "logger.error"])
+ * @returns Array of matches with line numbers
  */
-function findFunctionCalls(text, patterns) {
-	const matches = [];
+function findFunctionCalls(text: string, patterns: string[]): FunctionCall[] {
+	const matches: FunctionCall[] = [];
 	
 	try {
 		// Parse the entire document
@@ -28,7 +34,7 @@ function findFunctionCalls(text, patterns) {
 		});
 		
 		// Walk the AST to find matching call expressions
-		function walkNode(node) {
+		function walkNode(node: any): void {
 			if (!node || typeof node !== 'object') return;
 			
 			// Check if this is a matching member expression call
@@ -76,21 +82,18 @@ function findFunctionCalls(text, patterns) {
 		}
 		
 		walkNode(ast);
-	} catch (e) {
+	} catch (e: any) {
 		outputChannel.appendLine(`- ERROR parsing document for AST: ${e.message}`);
 	}
 	
 	return matches;
 }
 
-/**
- * @param {vscode.ExtensionContext} context
- */
-function activate(context) {
+export function activate(context: vscode.ExtensionContext): void {
 	outputChannel = vscode.window.createOutputChannel("Collapse Automation");
 	outputChannel.appendLine('Extension "collapse-automation" is now active.');
 
-	const triggerAnalysis = (document) => {
+	const triggerAnalysis = (document: vscode.TextDocument): void => {
 		if (document) {
 			if (timeout) {
 				clearTimeout(timeout);
@@ -135,14 +138,14 @@ function activate(context) {
 		
 		// Get the set of manually unfolded lines for this document
 		if (!manuallyUnfolded.has(docUri)) {
-			manuallyUnfolded.set(docUri, new Set());
+			manuallyUnfolded.set(docUri, new Set<number>());
 		}
-		const manuallyUnfoldedLines = manuallyUnfolded.get(docUri);
+		const manuallyUnfoldedLines = manuallyUnfolded.get(docUri)!;
 		const previousSize = manuallyUnfoldedLines.size;
 		
 		// Find function calls in this document
 		const functionCalls = findFunctionCalls(document.getText(), 
-			vscode.workspace.getConfiguration('collapse-automation').get('alwaysFold', []));
+			vscode.workspace.getConfiguration('collapse-automation').get<string[]>('alwaysFold', []));
 		
 		// Check which ones are now visible (unfolded) or folded
 		for (const call of functionCalls) {
@@ -193,7 +196,7 @@ function activate(context) {
 	}
 }
 
-async function analyzeAndFold(document, isManualCommand = false) {
+async function analyzeAndFold(document: vscode.TextDocument, isManualCommand: boolean = false): Promise<void> {
 	// Skip output channels to prevent recursion
 	if (document.uri.scheme === 'output' || 
 	    document.uri.fsPath.includes('extension-output') ||
@@ -232,10 +235,10 @@ async function analyzeAndFold(document, isManualCommand = false) {
 	outputChannel.appendLine(`isProcessing now: ${isProcessing}`);
 	
 	const config = vscode.workspace.getConfiguration('collapse-automation');
-	const alwaysFold = config.get('alwaysFold', []);
-	const neverFold = config.get('neverFold', []);
-	const collapseLevel = config.get('collapseLevel', 1);
-	const enableCollapsePragma = config.get('enableCollapsePragma', true);
+	const alwaysFold = config.get<string[]>('alwaysFold', []);
+	const neverFold = config.get<string[]>('neverFold', []);
+	const collapseLevel = config.get<number>('collapseLevel', 1);
+	const enableCollapsePragma = config.get<boolean>('enableCollapsePragma', true);
 
 	outputChannel.appendLine(`- Config: alwaysFold: [${alwaysFold.join(", ")}] (length: ${alwaysFold.length})`);
 	outputChannel.appendLine(`- Config: neverFold: [${neverFold.join(", ")}] (length: ${neverFold.length})`);
@@ -269,7 +272,7 @@ async function analyzeAndFold(document, isManualCommand = false) {
 			await vscode.commands.executeCommand(`editor.unfoldLevel${collapseLevel}`);
 			outputChannel.appendLine(`- COMPLETED: editor.unfoldLevel${collapseLevel}`);
 		}
-		const unfoldPositions = [];
+		const unfoldPositions: vscode.Position[] = [];
 		if (neverFold.length > 0) {
 			outputChannel.appendLine(`- Checking neverFold patterns...`);
 			for (let i = 0; i < lines.length; i++) {
@@ -281,7 +284,7 @@ async function analyzeAndFold(document, isManualCommand = false) {
 							unfoldPositions.push(new vscode.Position(i, 0));
 							break;
 						}
-					} catch (e) {
+					} catch (e: any) {
 						outputChannel.appendLine(`  - ERROR: Invalid regex pattern '${pattern}': ${e.message}`);
 					}
 				}
@@ -316,13 +319,13 @@ async function analyzeAndFold(document, isManualCommand = false) {
 			// Get or create the set of manually unfolded lines for this document
 			const docUri = document.uri.toString();
 			if (!manuallyUnfolded.has(docUri)) {
-				manuallyUnfolded.set(docUri, new Set());
+				manuallyUnfolded.set(docUri, new Set<number>());
 			}
-			const manuallyUnfoldedLines = manuallyUnfolded.get(docUri);
+			const manuallyUnfoldedLines = manuallyUnfolded.get(docUri)!;
 			
 			// Track currently folded lines before we start
 			const visibleRanges = editor.visibleRanges;
-			const currentlyFoldedLines = new Set();
+			const currentlyFoldedLines = new Set<number>();
 			for (const call of functionCalls) {
 				if (call.endLine > call.startLine) {
 					const middleLine = call.startLine + 1;
@@ -369,7 +372,7 @@ async function analyzeAndFold(document, isManualCommand = false) {
 					manuallyUnfoldedLines.delete(call.startLine);
 					
 					await new Promise(resolve => setTimeout(resolve, 10));
-				} catch (e) {
+				} catch (e: any) {
 					outputChannel.appendLine(`  - Failed to fold ${call.pattern} at line ${call.startLine + 1}: ${e.message}`);
 				}
 			}
@@ -393,13 +396,8 @@ async function analyzeAndFold(document, isManualCommand = false) {
 	outputChannel.appendLine(`=== ANALYZE END ===\n`);
 }
 
-function deactivate() {
+export function deactivate(): void {
 	if (timeout) {
 		clearTimeout(timeout);
 	}
 }
-
-module.exports = {
-	activate,
-	deactivate,
-};
