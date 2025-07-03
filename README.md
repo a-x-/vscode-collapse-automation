@@ -1,11 +1,9 @@
 # Auto Collapse Blocks - VS Code Extension
 
-[VS code extension install page](https://marketplace.visualstudio.com/items?itemName=allergan-bt.auto-collapse-blocks&ssr=false#overview)
-This is the README for extension "auto-collapse-blocks" in VS Code. This extension allows you to add `@collapse` annotation to the top of your code file and auto-magically collapse all code blocks within that file.
+[VS code extension install page](https://marketplace.visualstudio.com/items?itemName=mextner.collapse-automation&ssr=false#overview)
+This is the README for extension "collapse-automation" in VS Code. This extension allows you to add `@collapse` annotation to the top of your code file and auto-magically collapse all code blocks within that file.
 
 ## Features
-
-![Image of demo in JS](https://res.cloudinary.com/dtgh01qqo/image/upload/v1590181736/demo_gjukx5.gif)
 
 > Tip: Only the language file listed below will work with this extension, for more language support, please submit an issue and we will add them shortly!
 
@@ -15,24 +13,15 @@ This is the README for extension "auto-collapse-blocks" in VS Code. This extensi
 - `.scss`
 - `.md`
 
-## Extension Settings
-
 This extension will listen on file open/changed/focus to enforce auto collapsing.
+
+## Extension Settings
 
 ## Release Notes
 
-### 1.0.0
+### 0.0.1
 
-Initial release, with basic language supports for
-
-- `.js`
-- `.ts`
-- `.css`
-- `.scss`
-- `.md`
-
-- README updates
-- Added more demo assets
+Initial release
 
 ---
 
